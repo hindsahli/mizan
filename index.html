@@ -1,10 +1,198 @@
 <!doctype html>
 <html lang="fr">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mizan</title>
-    <link href="./src/css/output.css" rel="stylesheet" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mizan - Bijouterie Al Andalous</title>
+    <meta
+      name="description"
+      content="Mizan : consultez les cours de l'or et de l'argent et estimez la valeur de vos bijoux."
+    />
+    <link rel="stylesheet" href="./src/css/output.css" />
   </head>
-  <body></body>
+
+  <body class="bg-background-white text-dark-bleu">
+    <header
+      class="bg-white flex items-center justify-between px-20 py-6 border-b border-soft-beige"
+    >
+      <div>
+        <p class="text-2xl font-bold font-serif text-dark-bleu leading-none">
+          Mizan
+        </p>
+        <p class="text-xs text-dark-bleu leading-none">
+          Bijouterie Al Andalous
+        </p>
+      </div>
+      <div class="flex items-center gap-4">
+        <select
+          id="currency-select"
+          name="currency"
+          class="rounded border border-soft-beige px-3 py-2 bg-white"
+        >
+          <option value="MAD">MAD</option>
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+        </select>
+        <button
+          id="refresh-button"
+          type="button"
+          class="bg-gold text-white py-2 px-4 rounded-[5px] hover:opacity-90"
+        >
+          Actualiser
+        </button>
+      </div>
+    </header>
+
+    <main class="p-8 px-20">
+      <section class="mb-8">
+        <div
+          class="flex justify-between items-center bg-white border border-soft-beige rounded-lg p-4"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              id="status-indicator"
+              class="rounded-full px-3 py-1 text-sm"
+            ></span>
+
+            <p id="status-message" class="text-sm"></p>
+          </div>
+
+          <p id="last-update" class="text-sm text-gray-500"></p>
+        </div>
+      </section>
+
+      <section class="mb-10">
+        <div class="flex justify-between items-center mb-5">
+          <div>
+            <h1 class="text-2xl font-bold">Cours des métaux</h1>
+            <p class="text-sm text-gray-500 mt-1">
+              Consultez les derniers prix de l'or et de l'argent.
+            </p>
+          </div>
+        </div>
+
+        <div id="cards" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+        <button
+          id="retry-button"
+          type="button"
+          class="mt-5 bg-dark-bleu text-white py-2 px-5 rounded-[5px] hover:opacity-90"
+          disabled
+        >
+          Réessayer
+        </button>
+      </section>
+
+      <section class="bg-white border border-soft-beige rounded-lg p-6 mb-10">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-xl font-bold">Historique des prix</h2>
+            <p class="text-sm text-gray-500 mt-1">
+              Consultez l'évolution du cours d'un métal.
+            </p>
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              id="history-7-days"
+              type="button"
+              class="border border-soft-beige rounded-[5px] px-4 py-2 hover:bg-soft-beige"
+            >
+              7 jours
+            </button>
+
+            <button
+              id="history-30-days"
+              type="button"
+              class="border border-soft-beige rounded-[5px] px-4 py-2 hover:bg-soft-beige"
+            >
+              30 jours
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-5">
+          <select
+            id="history-metal"
+            name="history-metal"
+            class="w-full md:w-1/3 rounded border border-soft-beige px-3 py-2 bg-white"
+          >
+            <option value="gold">Or</option>
+            <option value="silver">Argent</option>
+          </select>
+        </div>
+
+        <div
+          id="history-chart"
+          class="w-full min-h-[250px] flex items-center justify-center border border-soft-beige rounded-lg p-4"
+        ></div>
+      </section>
+
+      <section class="bg-white border border-soft-beige rounded-lg p-6 mb-10">
+        <div class="mb-6">
+          <h2 class="text-xl font-bold">Estimateur de bijou</h2>
+          <p class="text-sm text-gray-500 mt-1">
+            Estimez la valeur de votre bijou selon son poids.
+          </p>
+        </div>
+
+        <form id="estimator-form" class="flex flex-col gap-5">
+          <div>
+            <label for="weight-input" class="block font-medium mb-1">
+              Poids du bijou (grammes)
+            </label>
+
+            <input
+              id="weight-input"
+              name="weight"
+              type="number"
+              min="0"
+              step="any"
+              class="w-full md:w-1/2 rounded border border-soft-beige px-3 py-2"
+              placeholder="Exemple : 5.5"
+            />
+
+            <p id="weight-error" class="text-sm text-error mt-1"></p>
+          </div>
+
+          <div>
+            <label for="estimator-metal" class="block font-medium mb-1">
+              Type de métal
+            </label>
+
+            <select
+              id="estimator-metal"
+              name="metal"
+              class="w-full md:w-1/2 rounded border border-soft-beige px-3 py-2 bg-white"
+            >
+              <option value="gold">Or</option>
+              <option value="silver">Argent</option>
+            </select>
+          </div>
+
+          <button
+            id="calculate-button"
+            type="submit"
+            class="w-full md:w-1/2 bg-gold text-white py-2 px-4 rounded-[5px] hover:opacity-90"
+          >
+            Calculer la valeur
+          </button>
+        </form>
+
+        <div
+          id="estimator-result"
+          class="hidden mt-6 border border-soft-beige rounded-lg p-5"
+        ></div>
+      </section>
+    </main>
+
+    <footer class="bg-white border-t border-soft-beige px-20 py-6 text-center">
+      <p class="font-bold text-dark-bleu">Mizan Bijouterie Al Andalous</p>
+      <p class="text-sm text-gray-500 mt-2">
+        Les cours des métaux précieux, simplement.
+      </p>
+    </footer>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
 </html>
