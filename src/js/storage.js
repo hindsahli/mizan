@@ -9,5 +9,5 @@ export function loadCurrency() {
     return currency;
   }
 
-  return "MAD";
+  return "USD";
 }
