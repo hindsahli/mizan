@@ -1,8 +1,42 @@
 import { state } from "./state.js";
-import { fetchCurrentPrices } from "./api.js";
+import { fetchCurrentPrices, goldHistory, silverHistory } from "./api.js";
 import { render } from "./render.js";
-import { loadCurrency, saveCurrency } from "./storage.js";
 
+async function loadMetalsHistory(spotData) {
+  const [goldData, silverData] = await Promise.all([
+    goldHistory(),
+    silverHistory(),
+  ]);
+
+  // Gold prices
+  state.history.gold.currentPrice = Number(spotData.xau.price);
+
+  state.history.gold.previousPrice = Number(
+    goldData.points[goldData.points.length - 1].c,
+  );
+
+  // Silver prices
+  state.history.silver.currentPrice = Number(spotData.silver_usd_oz);
+
+  state.history.silver.previousPrice = Number(
+    silverData.points[silverData.points.length - 1].c,
+  );
+
+  // Calculate price changes
+  state.history.gold.priceChange =
+    state.history.gold.currentPrice - state.history.gold.previousPrice;
+
+  state.history.silver.priceChange =
+    state.history.silver.currentPrice - state.history.silver.previousPrice;
+
+  // Calculate percentage changes
+  state.history.gold.percentageChange =
+    (state.history.gold.priceChange / state.history.gold.previousPrice) * 100;
+
+  state.history.silver.percentageChange =
+    (state.history.silver.priceChange / state.history.silver.previousPrice) *
+    100;
+}
 
 async function loadPrices() {
   state.loading = true;
@@ -12,33 +46,27 @@ async function loadPrices() {
 
   try {
     const data = await fetchCurrentPrices();
+
     state.prices = data;
     state.lastUpdate = data.updated_at;
 
+    await loadMetalsHistory(data);
+
     state.loading = false;
     render();
-    
   } catch (error) {
     state.error = error.message;
     state.loading = false;
     render();
+
+    console.error(error);
   }
 }
 
-
-
 function init() {
-  const currencySelect = document.getElementById("currency-select");
   const refreshButton = document.getElementById("refresh-button");
   const retryButton = document.getElementById("retry-button");
 
-  state.currency = loadCurrency();
-  currencySelect.value = state.currency;
-
-  currencySelect.addEventListener("change", () => {
-    state.currency = currencySelect.value;
-    saveCurrency(state.currency);
-  });
   refreshButton.addEventListener("click", loadPrices);
   retryButton.addEventListener("click", loadPrices);
 

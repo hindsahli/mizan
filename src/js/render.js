@@ -21,7 +21,7 @@ export function renderStatus() {
     lastUpdate.textContent = "";
   } else {
     statusIndicator.textContent = "A jour";
-    statusMessage.textContent = "les cours sont disponibles";
+    statusMessage.textContent = "Les cours sont disponibles";
     lastUpdate.textContent = state.lastUpdate;
   }
 }
@@ -35,35 +35,71 @@ export function renderMetalCards() {
 
   const metals = [
     {
-      metal: "OR",
-      price: state.prices.xau.price,
-      currency: state.prices.xau.currency,
+      metal: "Or",
+      currentPrice: state.history.gold.currentPrice,
+      percentageChange: state.history.gold.percentageChange,
+      priceChange: state.history.gold.priceChange,
     },
     {
       metal: "Argent",
-      price: state.prices.silver_usd_oz,
-      currency: "USD",
+      currentPrice: state.history.silver.currentPrice,
+      percentageChange: state.history.silver.percentageChange,
+      priceChange: state.history.silver.priceChange,
     },
   ];
 
   metals.forEach((metal) => {
     const card = document.createElement("div");
     const metalName = document.createElement("h3");
-    const metalPrice = document.createElement("p");
-    const metalcurrency = document.createElement("p");
+    const percentage = document.createElement("p");
+    const price = document.createElement("p");
+    const priceChange = document.createElement("p");
+    const update = document.createElement("p");
+    const historyLink = document.createElement("a");
+
+    const arrow = metal.percentageChange >= 0 ? "▲" : "▼";
+    const sign = metal.percentageChange >= 0 ? "+" : "";
+
+    const priceArrow = metal.priceChange >= 0 ? "▲" : "▼";
+    const priceSign = metal.priceChange >= 0 ? "+" : "";
 
     metalName.textContent = metal.metal;
-    metalPrice.textContent = metal.price;
-    metalcurrency.textContent = metal.currency;
 
-    card.className = "bg-white border border-soft-beige rounded-lg p-6";
-    metalName.className = "text-lg font-bold";
-    metalPrice.className = "text-3xl font-bold";
-    metalcurrency.className = "text-sm text-gray-500";
+    percentage.textContent = `${arrow} ${sign}${metal.percentageChange.toFixed(2)} %`;
 
-    card.append(metalName, metalPrice, metalcurrency);
+    price.textContent = `${metal.currentPrice.toFixed(2)} USD / oz`;
+
+    priceChange.textContent = `${priceArrow} ${priceSign}${metal.priceChange.toFixed(2)} USD depuis hier`;
+
+    update.textContent = `Mis à jour le ${state.lastUpdate}`;
+
+    historyLink.textContent = "Voir l'historique";
+
+    historyLink.href =
+      metal.metal === "Or" ? "#historique-or" : "#historique-argent";
+
+    card.className =
+      "bg-white border border-soft-beige rounded-lg p-6 flex flex-col gap-3";
+
+    metalName.className = "text-xl font-bold";
+
+    percentage.className =
+      metal.percentageChange >= 0
+        ? "text-green-600 font-bold"
+        : "text-red-600 font-bold";
+
+    price.className = "text-3xl font-bold";
+
+    priceChange.className =
+      metal.priceChange >= 0
+        ? "text-green-600 font-semibold"
+        : "text-red-600 font-semibold";
+
+    update.className = "text-sm text-gray-500";
+    historyLink.className = "text-sm font-semibold underline";
+
+    card.append(metalName, percentage, price, priceChange, update, historyLink);
+
     cards.appendChild(card);
   });
 }
-
-
