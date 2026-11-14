@@ -57,17 +57,35 @@ export function renderMetalCards() {
     const update = document.createElement("p");
     const historyLink = document.createElement("a");
 
-    const arrow = metal.percentageChange >= 0 ? "▲" : "▼";
-    const sign = metal.percentageChange >= 0 ? "+" : "";
+    let arrow = "";
+    let sign = "";
 
-    const priceArrow = metal.priceChange >= 0 ? "▲" : "▼";
-    const priceSign = metal.priceChange >= 0 ? "+" : "";
+    if (metal.percentageChange >= 0) {
+      percentage.classList.add("text-green-500");
+      arrow = "▲";
+      sign = "+";
+    } else {
+      percentage.classList.add("text-red-500");
+      arrow = "▼";
+    }
+
+    let priceArrow = "";
+    let priceSign = "";
+
+    if (metal.priceChange >= 0) {
+      priceChange.classList.add("text-green-500");
+      priceArrow = "▲";
+      priceSign = "+";
+    } else {
+      priceChange.classList.add("text-red-500");
+      priceArrow = "▼";
+    }
 
     metalName.textContent = metal.metal;
 
     percentage.textContent = `${arrow} ${sign}${metal.percentageChange.toFixed(2)} %`;
 
-    price.textContent = `${metal.currentPrice.toFixed(2)} USD / oz`;
+    price.textContent = `${metal.currentPrice.toFixed(2)} USD / gram`;
 
     priceChange.textContent = `${priceArrow} ${priceSign}${metal.priceChange.toFixed(2)} USD depuis hier`;
 
@@ -75,25 +93,18 @@ export function renderMetalCards() {
 
     historyLink.textContent = "Voir l'historique";
 
-    historyLink.href =
-      metal.metal === "Or" ? "#historique-or" : "#historique-argent";
+    if (metal.metal === "Or") {
+      historyLink.href = "#historique-or";
+    } else {
+      historyLink.href = "#historique-argent";
+    }
 
     card.className =
       "bg-white border border-soft-beige rounded-lg p-6 flex flex-col gap-3";
 
     metalName.className = "text-xl font-bold";
 
-    percentage.className =
-      metal.percentageChange >= 0
-        ? "text-green-600 font-bold"
-        : "text-red-600 font-bold";
-
     price.className = "text-3xl font-bold";
-
-    priceChange.className =
-      metal.priceChange >= 0
-        ? "text-green-600 font-semibold"
-        : "text-red-600 font-semibold";
 
     update.className = "text-sm text-gray-500";
     historyLink.className = "text-sm font-semibold underline";

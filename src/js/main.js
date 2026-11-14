@@ -1,6 +1,7 @@
 import { state } from "./state.js";
 import { fetchCurrentPrices, goldHistory, silverHistory } from "./api.js";
 import { render } from "./render.js";
+import {toGram } from "./calculator.js"
 
 async function loadMetalsHistory(spotData) {
   const [goldData, silverData] = await Promise.all([
@@ -9,17 +10,17 @@ async function loadMetalsHistory(spotData) {
   ]);
 
   // Gold prices
-  state.history.gold.currentPrice = Number(spotData.xau.price);
+  state.history.gold.currentPrice = Number(toGram(spotData.xau.price));
 
-  state.history.gold.previousPrice = Number(
-    goldData.points[goldData.points.length - 1].c,
+  state.history.gold.previousPrice = Number(toGram(
+    goldData.points[goldData.points.length - 1].c,)
   );
 
   // Silver prices
-  state.history.silver.currentPrice = Number(spotData.silver_usd_oz);
+  state.history.silver.currentPrice = Number(toGram(spotData.silver_usd_oz));
 
-  state.history.silver.previousPrice = Number(
-    silverData.points[silverData.points.length - 1].c,
+  state.history.silver.previousPrice = Number(toGram(
+    silverData.points[silverData.points.length - 1].c,)
   );
 
   // Calculate price changes
@@ -63,6 +64,7 @@ async function loadPrices() {
   }
 }
 
+
 function init() {
   const refreshButton = document.getElementById("refresh-button");
   const retryButton = document.getElementById("retry-button");
@@ -74,3 +76,4 @@ function init() {
 }
 
 init();
+
