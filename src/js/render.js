@@ -1,4 +1,5 @@
 import { state } from "./state.js";
+import { toGram, calculateMetal } from "./calculator.js";
 
 const statusIndicator = document.getElementById("status-indicator");
 const statusMessage = document.getElementById("status-message");
@@ -113,4 +114,24 @@ export function renderMetalCards() {
 
     cards.appendChild(card);
   });
+}
+const estimatorResult = document.getElementById("estimator-result");
+
+export function renderMetalEstimation(weight, metal) {
+  const estimationResultat = calculateMetal(weight, metal);
+
+  estimatorResult.classList.remove("hidden");
+  estimatorResult.innerHTML = "";
+
+  const title = document.createElement("h3");
+  const result = document.createElement("p");
+
+  title.textContent = "Valeur estimée";
+
+  result.textContent = `${estimationResultat.toFixed(2)} USD`;
+
+  title.className = "text-lg font-bold mb-2";
+  result.className = "text-3xl font-bold text-gold";
+
+  estimatorResult.append(title, result);
 }

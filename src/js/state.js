@@ -1,6 +1,5 @@
-
 export const state = {
-  prices : null ,
+  prices: null,
   history: {
     gold: {
       currentPrice: 0,
@@ -16,6 +15,10 @@ export const state = {
     },
   },
   currency: "USD",
+  exchangeRates: {
+    MAD: 0,
+    EUR: 0,
+  },
   loading: false,
   error: null,
   lastUpdate: null,
