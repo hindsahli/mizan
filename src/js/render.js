@@ -1,5 +1,5 @@
 import { state } from "./state.js";
-import { toGram, calculateMetal } from "./calculator.js";
+import { toGram, calculateMetal, convertCurrency } from "./calculator.js";
 
 const statusIndicator = document.getElementById("status-indicator");
 const statusMessage = document.getElementById("status-message");
@@ -49,6 +49,16 @@ export function renderMetalCards() {
     },
   ];
 
+  let currencySymbol = "";
+
+  if (state.currency === "MAD") {
+    currencySymbol = "MAD";
+  } else if (state.currency === "EUR") {
+    currencySymbol = "€";
+  } else {
+    currencySymbol = "USD";
+  }
+
   metals.forEach((metal) => {
     const card = document.createElement("div");
     const metalName = document.createElement("h3");
@@ -82,13 +92,25 @@ export function renderMetalCards() {
       priceArrow = "▼";
     }
 
+    const convertedPrice = convertCurrency(
+      metal.currentPrice,
+      state.currency,
+      state.exchangeRates,
+    );
+
+    const convertedChange = convertCurrency(
+      Math.abs(metal.priceChange),
+      state.currency,
+      state.exchangeRates,
+    );
+
     metalName.textContent = metal.metal;
 
     percentage.textContent = `${arrow} ${sign}${metal.percentageChange.toFixed(2)} %`;
 
-    price.textContent = `${metal.currentPrice.toFixed(2)} USD / gram`;
+    price.textContent = `${convertedPrice.toFixed(2)} ${currencySymbol} / gram`;
 
-    priceChange.textContent = `${priceArrow} ${priceSign}${metal.priceChange.toFixed(2)} USD depuis hier`;
+    priceChange.textContent = `${priceArrow} ${priceSign}${convertedChange.toFixed(2)} ${currencySymbol} depuis hier`;
 
     update.textContent = `Mis à jour le ${state.lastUpdate}`;
 
@@ -120,6 +142,21 @@ const estimatorResult = document.getElementById("estimator-result");
 export function renderMetalEstimation(weight, metal) {
   const estimationResultat = calculateMetal(weight, metal);
 
+  const convertedPrice = convertCurrency(
+    estimationResultat,
+    state.currency,
+    state.exchangeRates,
+  );
+
+  let currencySymbol = "";
+  if (state.currency === "MAD") {
+    currencySymbol = "MAD";
+  } else if (state.currency === "EUR") {
+    currencySymbol = "€";
+  } else {
+    currencySymbol = "USD";
+  }
+
   estimatorResult.classList.remove("hidden");
   estimatorResult.innerHTML = "";
 
@@ -128,7 +165,7 @@ export function renderMetalEstimation(weight, metal) {
 
   title.textContent = "Valeur estimée";
 
-  result.textContent = `${estimationResultat.toFixed(2)} USD`;
+  result.textContent = `${convertedPrice.toFixed(2)} ${currencySymbol}`;
 
   title.className = "text-lg font-bold mb-2";
   result.className = "text-3xl font-bold text-gold";
