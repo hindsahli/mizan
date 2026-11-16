@@ -19,6 +19,9 @@ export const state = {
     MAD: 0,
     EUR: 0,
   },
+
+  estimation: null,
+
   loading: false,
   error: null,
   lastUpdate: null,

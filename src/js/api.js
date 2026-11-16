@@ -9,7 +9,6 @@ export async function fetchCurrentPrices() {
 
   if (!response.ok) {
     throw new Error("Failed to fetch prices");
-    //Error is a built-in JavaScript object (This creates an error object with the message
   }
 
   const data = await response.json();

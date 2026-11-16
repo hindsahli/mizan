@@ -7,6 +7,7 @@ import {
 } from "./api.js";
 import { render, renderMetalEstimation } from "./render.js";
 import { toGram } from "./calculator.js";
+import { saveCurrency, loadCurrency } from "./storage.js";
 
 const estimatorForm = document.getElementById("estimator-form");
 const currencySelect = document.getElementById("currency-select");
@@ -17,28 +18,24 @@ async function loadMetalsHistory(spotData) {
     silverHistory(),
   ]);
 
-  // Gold prices
   state.history.gold.currentPrice = Number(toGram(spotData.xau.price));
 
   state.history.gold.previousPrice = Number(
     toGram(goldData.points[goldData.points.length - 1].c),
   );
 
-  // Silver prices
   state.history.silver.currentPrice = Number(toGram(spotData.silver_usd_oz));
 
   state.history.silver.previousPrice = Number(
     toGram(silverData.points[silverData.points.length - 1].c),
   );
 
-  // Calculate price changes
   state.history.gold.priceChange =
     state.history.gold.currentPrice - state.history.gold.previousPrice;
 
   state.history.silver.priceChange =
     state.history.silver.currentPrice - state.history.silver.previousPrice;
 
-  // Calculate percentage changes
   state.history.gold.percentageChange =
     (state.history.gold.priceChange / state.history.gold.previousPrice) * 100;
 
@@ -78,17 +75,39 @@ async function loadPrices() {
 
 function init() {
   const refreshButton = document.getElementById("refresh-button");
+
   const retryButton = document.getElementById("retry-button");
+
+  state.currency = loadCurrency();
+
+  currencySelect.value = state.currency;
 
   refreshButton.addEventListener("click", loadPrices);
   retryButton.addEventListener("click", loadPrices);
 
   currencySelect.addEventListener("change", () => {
     state.currency = currencySelect.value;
+    saveCurrency(state.currency);
+
     render();
+
+    if (state.estimation !== null) {
+      calculateEstimation();
+    }
   });
 
   loadPrices();
+}
+
+function calculateEstimation() {
+  const weight = state.estimation.weight;
+  const metal = state.estimation.metal;
+
+  if (metal === "gold") {
+    renderMetalEstimation(weight, state.prices.xau.price);
+  } else {
+    renderMetalEstimation(weight, state.prices.silver_usd_oz);
+  }
 }
 
 init();
@@ -101,11 +120,12 @@ estimatorForm.addEventListener("submit", (e) => {
   const weightError = document.getElementById("weight-error");
 
   const weight = Number(weightInput.value);
+
   const metal = metalSelect.value;
 
   weightError.textContent = "";
 
-  if (!weightInput.value || weight <= 0) {
+  if (weightInput.value === "" || weight <= 0 ) {
     weightError.textContent = "Veuillez entrer un poids valide.";
     return;
   }
@@ -115,9 +135,18 @@ estimatorForm.addEventListener("submit", (e) => {
     return;
   }
 
-  if (metal === "gold") {
-    renderMetalEstimation(weight, state.prices.xau.price);
-  } else {
-    renderMetalEstimation(weight, state.prices.silver_usd_oz);
+  if (
+    state.currency !== "USD" &&
+    state.exchangeRates[state.currency] === undefined
+  ) {
+    weightError.textContent = "Le taux de change est indisponible.";
+    return;
   }
+
+  state.estimation = {
+    weight: weight,
+    metal: metal,
+  };
+
+  calculateEstimation();
 });
