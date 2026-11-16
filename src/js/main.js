@@ -6,7 +6,13 @@ import {
   fetchExchangeRates,
 } from "./api.js";
 import { render, renderMetalEstimation } from "./render.js";
-import { toGram } from "./calculator.js";
+import {
+  toGram,
+  goldWeekPrices,
+  goldMonthPrices,
+  silverWeekPrices,
+  silverMonthPrices,
+} from "./calculator.js";
 import { saveCurrency, loadCurrency } from "./storage.js";
 
 const estimatorForm = document.getElementById("estimator-form");
@@ -42,6 +48,12 @@ async function loadMetalsHistory(spotData) {
   state.history.silver.percentageChange =
     (state.history.silver.priceChange / state.history.silver.previousPrice) *
     100;
+
+  state.history.gold.weekPrices = goldWeekPrices(goldData);
+  state.history.gold.monthPrices = goldMonthPrices(goldData);
+
+  state.history.silver.weekPrices = silverWeekPrices(silverData);
+  state.history.silver.monthPrices = silverMonthPrices(silverData);
 }
 
 async function loadPrices() {
@@ -125,7 +137,7 @@ estimatorForm.addEventListener("submit", (e) => {
 
   weightError.textContent = "";
 
-  if (weightInput.value === "" || weight <= 0 ) {
+  if (weightInput.value === "" || weight <= 0) {
     weightError.textContent = "Veuillez entrer un poids valide.";
     return;
   }
