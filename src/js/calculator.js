@@ -26,7 +26,7 @@ export function convertCurrency(price, currency, exchangeRates) {
 export function goldWeekPrices(goldData) {
   let weekPrices = [];
 
-  for (i = 0; i < 7; i++) {
+  for (let i = 1 ; i <= 7; i++) {
     weekPrices.push(goldData.points[goldData.points.length - i].c);
   }
   return weekPrices.reverse();
