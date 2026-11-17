@@ -5,7 +5,7 @@ import {
   silverHistory,
   fetchExchangeRates,
 } from "./api.js";
-import { render, renderMetalEstimation } from "./render.js";
+import { render, renderMetalEstimation, renderChart } from "./render.js";
 import {
   toGram,
   goldWeekPrices,
@@ -17,6 +17,11 @@ import { saveCurrency, loadCurrency } from "./storage.js";
 
 const estimatorForm = document.getElementById("estimator-form");
 const currencySelect = document.getElementById("currency-select");
+const historyMetal = document.getElementById("history-metal");
+const history7Days = document.getElementById("history-7-days");
+const history30Days = document.getElementById("history-30-days");
+
+let historyPeriod = "week";
 
 async function loadMetalsHistory(spotData) {
   const [goldData, silverData] = await Promise.all([
@@ -76,6 +81,7 @@ async function loadPrices() {
 
     state.loading = false;
     render();
+    updateHistoryChart();
   } catch (error) {
     state.error = error.message;
     state.loading = false;
@@ -94,7 +100,9 @@ function init() {
 
   currencySelect.value = state.currency;
 
-  refreshButton.addEventListener("click", loadPrices);
+  refreshButton.addEventListener("click", () => {
+    location.reload();
+  });
   retryButton.addEventListener("click", loadPrices);
 
   currencySelect.addEventListener("change", () => {
@@ -102,6 +110,7 @@ function init() {
     saveCurrency(state.currency);
 
     render();
+    updateHistoryChart();
 
     if (state.estimation !== null) {
       calculateEstimation();
@@ -109,6 +118,17 @@ function init() {
   });
 
   loadPrices();
+  history7Days.addEventListener("click", () => {
+    historyPeriod = "week";
+    updateHistoryChart();
+  });
+
+  history30Days.addEventListener("click", () => {
+    historyPeriod = "month";
+    updateHistoryChart();
+  });
+
+  historyMetal.addEventListener("change", updateHistoryChart);
 }
 
 function calculateEstimation() {
@@ -162,3 +182,25 @@ estimatorForm.addEventListener("submit", (e) => {
 
   calculateEstimation();
 });
+
+function updateHistoryChart() {
+  let prices = [];
+
+  if (historyMetal.value === "gold") {
+    if (historyPeriod === "week") {
+      prices = state.history.gold.weekPrices;
+    } else {
+      prices = state.history.gold.monthPrices;
+    }
+  } else {
+    if (historyPeriod === "week") {
+      prices = state.history.silver.weekPrices;
+    } else {
+      prices = state.history.silver.monthPrices;
+    }
+  }
+
+  if (prices.length > 0) {
+    renderChart(prices);
+  }
+}
