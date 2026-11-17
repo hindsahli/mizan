@@ -72,3 +72,4 @@ Then open `index.html` in your browser through the local server.
 ## Author
 
 Developed as a JavaScript project for **Bijouterie Al Andalous**.
+# mizan-part-II
